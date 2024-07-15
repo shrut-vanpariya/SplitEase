@@ -98,7 +98,7 @@ export default function Component(props: { user: Friend }) {
                     </Avatar>
                 </div>
                 <div className="flex flex-col justify-center items-start w-2/3 gap-2">
-                    <div className="text-base md:text-xl font-semibold">{props?.user?.username}</div>
+                    <div className="text-base md:text-xl font-semibold">{props?.user?.username.split(" ")[0]}</div>
                     <div>
                         {props?.user?.status !== "accepted" && <Badge variant={"default"}>{props?.user?.status}</Badge>}
                     </div>
