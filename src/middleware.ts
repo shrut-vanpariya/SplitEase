@@ -25,8 +25,9 @@ export async function middleware(request: NextRequest) {
     const publicPaths = ["/", "/login", "/register", "/verifyemail"];
     const isPublicPath = publicPaths.includes(request.nextUrl.pathname);
 
-    const token = request.cookies.get('authjs.session-token')?.value || ''
+    // const token = request.cookies.get('authjs.session-token')?.value || ''
     // console.log(token);
+    const token = request.cookies.getAll().find((c:any) => (c.name.includes("authjs.session-token")))    
     
     if (!isPublicPath && !token) {
         return NextResponse.redirect(new URL('/login', request.nextUrl))
