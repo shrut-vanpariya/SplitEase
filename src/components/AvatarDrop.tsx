@@ -57,12 +57,12 @@ export function AvatarDrop() {
                             Dashboard
                         </DropdownMenuItem>
                     </Link>
-                    <DropdownMenuItem>
+                    {/* <DropdownMenuItem>
                         {session?.user?.name}
                     </DropdownMenuItem>
                     <DropdownMenuItem>
                         {session?.user?.email}
-                    </DropdownMenuItem>
+                    </DropdownMenuItem> */}
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem

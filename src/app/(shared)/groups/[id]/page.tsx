@@ -3,6 +3,8 @@
 import { useStore } from "@/lib/globalStore";
 import Link from "next/link"
 import { useEffect, useState } from "react";
+import { useToast } from "@/components/ui/use-toast";
+
 
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
@@ -10,6 +12,16 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import ExpenseCard from "@/components/ExpenseCard";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuLabel,
+    DropdownMenuRadioGroup,
+    DropdownMenuRadioItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Ellipsis, EllipsisVertical, Settings2 } from "lucide-react";
 
 
 interface Group {
@@ -42,10 +54,13 @@ interface Expense {
 export default function Page({ params }: { params: { id: string } }) {
 
     const [group, setGroup] = useState<Group>();
-    const { userData, groupData }: any = useStore();
+    const { userData, groupData, setReloadData }: any = useStore();
     const [expenses, setExpenses] = useState<Expense[]>([]);
     const [totalExpense, setTotalExpense] = useState(0);
     const [currencySymbol, setCurrencySynbol] = useState('₹');
+
+    const { toast } = useToast();
+
 
     useEffect(() => {
         if (groupData) {
@@ -68,7 +83,7 @@ export default function Page({ params }: { params: { id: string } }) {
         } catch (error: any) {
             console.log(error.message);
         }
-    }, [params.id])
+    }, [params.id, groupData])
 
     useEffect(() => {
         if (expenses) {
@@ -87,6 +102,49 @@ export default function Page({ params }: { params: { id: string } }) {
 
     }, [expenses, params.id, userData?._id])
 
+    const handleSettle = async () => {
+        if(!group) {
+            toast({
+                variant: "destructive",
+                description: `Please try again!...😥,`,
+            })
+            return
+        }
+        console.log(groupData);
+        
+        try {
+            const res = await fetch(`/api/expense/settle`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    groupId: group._id
+                })
+            });
+            const data = await res.json();
+            console.log(data);
+
+            if (data?.error) {
+                console.log("error page redirect");
+                toast({
+                    variant: "destructive",
+                    description: `Failed to settle expenses...😥, ${data?.error}`,
+                })
+            }
+            else {
+                toast({
+                    description: `Expenses settled...😊`,
+                })
+                setReloadData(true)
+                // router.push('/');
+                // router.refresh();
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     return (
         <div className="flex flex-col justify-start items-center pt-5 px-5 md:px-10 min-h-[calc(100vh_-_56px)]">
             <div className="flex justify-between md:pl-10 items-center w-full">
@@ -97,12 +155,41 @@ export default function Page({ params }: { params: { id: string } }) {
                     </Avatar>
                     <span className="text-2xl md:text-3xl">{group?.name}</span>
                 </div>
-                <Link href={{
-                    pathname: "../expenses/create",
-                    query: { gid: `${params.id}` }
-                }}>
-                    <Button className="text-xs md:text-sm">Create Expense</Button>
-                </Link>
+                <div className="hidden md:block">
+                    <div className="flex gap-3">
+                        <Button onClick={handleSettle}>Settle</Button>
+                        <Link href={{
+                            pathname: "../expenses/create",
+                            query: { gid: `${params.id}` }
+                        }}>
+                            <Button className="text-xs md:text-sm">Create Expense</Button>
+                        </Link>
+                    </div>
+                </div>
+                <div className="md:hidden">
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <EllipsisVertical height={32} width={32} className="pr-2" />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="w-56">
+                            <DropdownMenuLabel>Options</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuRadioGroup>
+                                <DropdownMenuRadioItem value="Create Expense">
+                                    <Link href={{
+                                        pathname: "../expenses/create",
+                                        query: { gid: `${params.id}` }
+                                    }}>
+                                        Create Expense
+                                    </Link>
+                                </DropdownMenuRadioItem>
+                                <DropdownMenuRadioItem value="Settle" onClick={handleSettle}>
+                                    Settle
+                                </DropdownMenuRadioItem>
+                            </DropdownMenuRadioGroup>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
             </div>
             <Separator className="my-5" />
             <Tabs defaultValue="expenses" className="w-full">
@@ -135,9 +222,9 @@ export default function Page({ params }: { params: { id: string } }) {
                 </TabsContent>
                 <TabsContent value="details">
                     <ScrollArea className="h-[calc(100vh_-_230px)] w-full rounded-md border">
-                    <div className="flex flex-col justify-center items-center gap-5 p-5">
-                        Group Details
-                    </div>
+                        <div className="flex flex-col justify-center items-center gap-5 p-5">
+                            Group Details
+                        </div>
                     </ScrollArea>
 
                 </TabsContent>

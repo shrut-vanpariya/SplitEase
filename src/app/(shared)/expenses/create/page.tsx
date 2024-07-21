@@ -75,7 +75,7 @@ export default function Expenses() {
             // console.log(data);
 
             if (data?.error) {
-                console.log("error page redirect");
+                // console.log("error page redirect");
                 toast({
                     variant: "destructive",
                     description: `Failed to create Expense...😥, ${data?.error}`,
@@ -244,7 +244,7 @@ export default function Expenses() {
                                                 <div>
                                                     {member.label}
                                                 </div>
-                                                {member.value !== userData._id && <Button variant={"outline"} onClick={() => handleDel(member.value)}>
+                                                {member.value !== userData?._id && <Button variant={"outline"} onClick={() => handleDel(member.value)}>
                                                     <Trash2 size={20} />
                                                 </Button>}
                                             </li>
@@ -261,8 +261,9 @@ export default function Expenses() {
                         </ScrollArea>
                     </div>
                 </CardContent>
-                <CardFooter className="flex justify-end">
+                <CardFooter className="flex justify-end gap-2">
                     <Button onClick={handleSubmit}>Save Expense</Button>
+                    <Button variant={'outline'} onClick={() => router.back()}>Cancel</Button>
                 </CardFooter>
             </Card>
         </div>

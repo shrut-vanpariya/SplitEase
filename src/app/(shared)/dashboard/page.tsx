@@ -44,11 +44,11 @@ export default function Home() {
                 .then(response => response.json())
                 .then(data => {
                     if (data.error) {
-                        console.log(data.error);
+                        // console.log(data.error);
                         return;
                     }
 
-                    console.log(data);
+                    // console.log(data);
                     setExpenses(data.expenses)
                 })
                 .catch(error => {

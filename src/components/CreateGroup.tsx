@@ -54,7 +54,7 @@ export default function CreateGroup() {
     const { toast } = useToast();
 
     const router = useRouter()
-    const { userData, friendData }: any = useStore();
+    const { userData, friendData, setReloadData }: any = useStore();
 
     const [value, setValue] = useState("")
 
@@ -127,6 +127,7 @@ export default function CreateGroup() {
                 toast({
                     description: `Group created successfully...😊`,
                 })
+                setReloadData(true);
                 // router.push('/');
                 // router.refresh();
             }

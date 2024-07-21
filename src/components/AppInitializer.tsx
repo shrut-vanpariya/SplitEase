@@ -22,7 +22,7 @@ export default function AppInitializer({ children }: any) {
     useEffect(() => {
         // console.log('fetch user data');
 
-        if (status === 'authenticated' && !userData) {
+        if (status === 'authenticated' && (!userData || reloadData)) {
 
             try {
                 fetch(`/api/user?email=${session?.user?.email}`)
@@ -39,14 +39,14 @@ export default function AppInitializer({ children }: any) {
                 console.log(error.message);
             }
         }
-    }, [session?.user?.email, setUserData, userData, status])
+    }, [session?.user?.email, setUserData, userData, status, reloadData])
 
 
     useEffect(() => {
         // console.log('fetch friend and group');
 
         if (userData) {
-            if (!friendData) {
+            if (!friendData || reloadData) {
                 try {
                     fetch(`/api/friend?uid=${userData._id}`)
                         .then(response => response.json())
@@ -63,7 +63,7 @@ export default function AppInitializer({ children }: any) {
                 }
             }
 
-            if (!groupData) {
+            if (!groupData || reloadData) {
                 try {
                     fetch(`/api/group?uid=${userData._id}`)
                         .then(response => response.json())
@@ -80,23 +80,19 @@ export default function AppInitializer({ children }: any) {
                 }
             }
         }
-    }, [friendData, groupData, setFriendData, setGroupData, userData])
+    }, [friendData, groupData, reloadData, setFriendData, setGroupData, userData])
 
     useEffect(() => {
         if (reloadData) {
             console.log('window is reloaded');
-
-            setUserData(null);
-            setGroupData(null);
-            setFriendData(null);
             setReloadData(false)
         }
-    }, [reloadData, setFriendData, setGroupData, setReloadData, setUserData])
+    }, [reloadData, setReloadData])
 
     useEffect(() => {
         const timer = setInterval(() => {
             setReloadData(true)
-        }, 1000 * 30); // 1000ms = 1 seconds
+        }, 1000 * 10); // 1000ms = 1 seconds
 
         // Cleanup function to clear the timer if the component unmounts
         return () => clearTimeout(timer);
