@@ -64,13 +64,16 @@ export default function Home() {
         if (expenses) {
             let tot = 0
             expenses.map((expense: Expense) => {
-                const f = expense.participants.find((p) => (p.userId === userData?._id))
+                if (!expense.settled) {
 
-                if (expense.createdBy === userData?._id) {
-                    tot += expense.amount - (f ? f.amountOwed : 0)
-                }
-                else {
-                    tot -= f ? f.amountOwed : 0
+                    const f = expense.participants.find((p) => (p.userId === userData?._id))
+
+                    if (expense.createdBy === userData?._id) {
+                        tot += expense.amount - (f ? f.amountOwed : 0)
+                    }
+                    else {
+                        tot -= f ? f.amountOwed : 0
+                    }
                 }
             })
             setTotalExpense(tot);

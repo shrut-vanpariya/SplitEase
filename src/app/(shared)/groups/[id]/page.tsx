@@ -89,12 +89,14 @@ export default function Page({ params }: { params: { id: string } }) {
         if (expenses) {
             let tot = 0
             expenses.map((expense: Expense) => {
-                const f = expense.participants.find((p) => (p.userId._id === userData?._id))
-                if (expense.createdBy === userData?._id) {
-                    tot += expense.amount - f.amountOwed
-                }
-                else {
-                    tot -= f ? f.amountOwed : 0
+                if (!expense.settled) {
+                    const f = expense.participants.find((p) => (p.userId._id === userData?._id))
+                    if (expense.createdBy === userData?._id) {
+                        tot += expense.amount - f.amountOwed
+                    }
+                    else {
+                        tot -= f ? f.amountOwed : 0
+                    }
                 }
             })
             setTotalExpense(tot);
@@ -103,7 +105,7 @@ export default function Page({ params }: { params: { id: string } }) {
     }, [expenses, params.id, userData?._id])
 
     const handleSettle = async () => {
-        if(!group) {
+        if (!group) {
             toast({
                 variant: "destructive",
                 description: `Please try again!...😥,`,
@@ -111,7 +113,7 @@ export default function Page({ params }: { params: { id: string } }) {
             return
         }
         console.log(groupData);
-        
+
         try {
             const res = await fetch(`/api/expense/settle`, {
                 method: "POST",

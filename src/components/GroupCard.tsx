@@ -56,12 +56,14 @@ export default function Component(props: any) {
         if (expenses) {
             let tot = 0
             expenses.map((expense: Expense) => {
-                const f = expense.participants.find((p) => (p.userId._id === userData?._id))
-                if (expense.createdBy === userData?._id) {
-                    tot += expense.amount - f.amountOwed
-                }
-                else {
-                    tot -= f ? f.amountOwed : 0
+                if (!expense.settled) {
+                    const f = expense.participants.find((p) => (p.userId._id === userData?._id))
+                    if (expense.createdBy === userData?._id) {
+                        tot += expense.amount - f.amountOwed
+                    }
+                    else {
+                        tot -= f ? f.amountOwed : 0
+                    }
                 }
             })
             setTotalExpense(tot);
@@ -72,12 +74,12 @@ export default function Component(props: any) {
     return (
         <Card className="w-80 max-w-sm p-6 grid gap-6">
             <div className="flex items-center gap-4">
-            <div className="w-1/3 border-r">
-                <Avatar className="h-16 w-16">
-                    <AvatarImage src={""} />
-                    <AvatarFallback className="text-2xl">{props?.group?.name?.substring(0, 2).toUpperCase()}</AvatarFallback>
-                </Avatar>
-            </div>
+                <div className="w-1/3 border-r">
+                    <Avatar className="h-16 w-16">
+                        <AvatarImage src={""} />
+                        <AvatarFallback className="text-2xl">{props?.group?.name?.substring(0, 2).toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                </div>
                 <div className="flex flex-col justify-center items-start w-2/3 gap-2">
                     <div className="text-xl font-semibold">{props?.group?.name}</div>
                     <div className="text-sm text-muted-foreground">{totalExpense >= 0 ? `You own ${currencySymbol}${totalExpense.toFixed(2)}` : `You owe ${currencySymbol}${(-1 * totalExpense).toFixed(2)}`}</div>
